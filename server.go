@@ -1,22 +1,40 @@
 package main
 
 import (
-	"fmt"
-	//"github.com/codegangsta/negroni"
-	"github.com/gorilla/mux"
+	//"fmt"
+	"github.com/codegangsta/negroni"
+	"log"
+	//"github.com/gorilla/mux"
 	"net/http"
 )
 
 func main() {
-	r := mux.NewRouter().StrictSlash(false)
-	r.HandleFunc("/", HomeHandler)
+	n := negroni.New(
+		negroni.NewRecovery(),
+		negroni.HandlerFunc(MyMiddleware),
+		negroni.HandlerFunc(MyHiMiddleware),
+		negroni.NewLogger(),
+		negroni.NewStatic(http.Dir("assets/")),
+	)
 
-	fmt.Println("ca roule sur 8080")
+	n.Run(":8080")
 
-	http.ListenAndServe(":8080", r)
 }
 
-func HomeHandler(w http.ResponseWriter, req *http.Request) {
-	fmt.Println("yooo")
-	fmt.Fprintf(w, "we sdajkhdhave a page")
+func MyMiddleware(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+	log.Println("Logging on the wat there")
+
+	if r.URL.Query().Get("password") == "jesus" {
+		log.Println("yess")
+		next(rw, r)
+	} else {
+		http.Error(rw, "Not Authorise", 401)
+	}
+
+	log.Println("logging on the way back")
+}
+
+func MyHiMiddleware(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+
+	log.Println("HI")
 }
