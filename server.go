@@ -2,18 +2,21 @@ package main
 
 import (
 	"fmt"
-	"github.com/codegangsta/negroni"
+	//"github.com/codegangsta/negroni"
+	"github.com/gorilla/mux"
 	"net/http"
 )
 
 func main() {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-		fmt.Fprintf(w, "we have a page")
+	r := mux.NewRouter().StrictSlash(false)
+	r.HandleFunc("/", HomeHandler)
 
-	})
+	fmt.Println("ca roule sur 8080")
 
-	n := negroni.Classic()
-	n.UseHandler(mux)
-	n.Run(":3001")
+	http.ListenAndServe(":8080", r)
+}
+
+func HomeHandler(w http.ResponseWriter, req *http.Request) {
+	fmt.Println("yooo")
+	fmt.Fprintf(w, "we sdajkhdhave a page")
 }
